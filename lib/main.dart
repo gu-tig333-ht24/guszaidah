@@ -70,9 +70,6 @@ class MyHomePage extends StatelessWidget {
             )
           ], // actions
         ),
-        // body: ListView(
-        //   children: lstTasks.map((task) => taskRow(task)).toList(),
-        // ),
         body: ListView.separated(
           itemBuilder: (context, index) => taskRow(lstTasks[index]),
           itemCount: lstTasks.length,
@@ -148,6 +145,7 @@ class MySecPage extends StatelessWidget {
           },
         ),
       ),
+      
       body: Padding(
         padding: EdgeInsets.only(top: 40, right: 30, left: 30, bottom: 40),
         child: Column(
