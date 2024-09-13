@@ -87,7 +87,8 @@ class MyHomePage extends StatelessWidget {
           height: 60,
           child: FloatingActionButton(
             onPressed: () {
-              // ~~~~~~~~~~
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MySecPage()));
             },
             backgroundColor: Colors.grey,
             shape: CircleBorder(),
@@ -143,7 +144,7 @@ class MySecPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            // Navigator.pop(context);
+            Navigator.pop(context);
           },
         ),
       ),
