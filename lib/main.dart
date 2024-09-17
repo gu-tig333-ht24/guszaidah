@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'my_sec_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TaskManager(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class Task {
@@ -10,6 +17,20 @@ class Task {
   bool isDone;
 
   Task(this.taskName, this.isDone);
+}
+
+class TaskManager extends ChangeNotifier {
+  List<Task> lstTasks = [];
+
+  void addTask(Task task) {
+    lstTasks.add(task);
+    notifyListeners();
+  }
+
+  void removeTask(Task task) {
+    lstTasks.remove(task);
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -31,100 +52,99 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Task> lstTasks = [
-      Task("Write a book", false),
-      Task("Do homework", false),
-      Task("Write a book", true),
-      Task("Watch TV", false),
-      Task("Nap", false),
-      Task("Shop groceries", false),
-      Task("Have fun", false),
-      Task("Meditate", false),
-    ];
+    // Jag använder "watch" här eftersom jag vill att denna vy (HomePage) ska uppdateras
+    // varje gång listan i TaskManager ändras, t.ex. när en ny uppgift läggs till
+    // eller när en uppgift tas bort. Genom att använda "watch" kommer widgeten 
+    // automatiskt att lyssna på förändringar i TaskManager och uppdatera sig 
+    // när notifyListeners() anropas, vilket gör att användargränssnittet visar 
+    // den aktuella listan med uppgifter.
+    final taskManager = context.watch<TaskManager>(); // Ny rad
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("TIG333 TODO"),
-          centerTitle: true,
-          backgroundColor: Colors.grey,
-          actions: [
-            PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert),
-              itemBuilder: (BuildContext context) {
-                return [
-                  const PopupMenuItem<String>(
-                    child: Text("all", style: TextStyle(fontSize: 14)),
-                  ),
-                  const PopupMenuItem<String>(
-                    child: Text("done", style: TextStyle(fontSize: 14)),
-                  ),
-                  const PopupMenuItem<String>(
-                    child: Text("undone", style: TextStyle(fontSize: 14)),
-                  ),
-                ];
-              },
-              onSelected: (String value) {
-                // ~~~~~~~~
-              },
-              padding: EdgeInsets.zero,
-              offset: Offset(0, 40),
-            )
-          ], // actions
-        ),
-        body: ListView.separated(
-          itemBuilder: (context, index) => taskRow(lstTasks[index]),
-          itemCount: lstTasks.length,
-          separatorBuilder: (context, index) => const Divider(
-            color: Colors.grey,
-            thickness: 1,
-            height: 1,
-          ),
-        ),
-        floatingActionButton: SizedBox(
-          width: 60,
-          height: 60,
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MySecPage()));
+      appBar: AppBar(
+        title: const Text("TIG333 TODO"),
+        centerTitle: true,
+        backgroundColor: Colors.grey,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert),
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  child: Text("all", style: TextStyle(fontSize: 14)),
+                ),
+                const PopupMenuItem<String>(
+                  child: Text("done", style: TextStyle(fontSize: 14)),
+                ),
+                const PopupMenuItem<String>(
+                  child: Text("undone", style: TextStyle(fontSize: 14)),
+                ),
+              ];
             },
-            backgroundColor: Colors.grey,
-            shape: CircleBorder(),
-            child: const Icon(Icons.add, size: 60, color: Colors.white),
+            onSelected: (String value) {
+              // ~~~~~~~~
+            },
+            padding: EdgeInsets.zero,
+            offset: Offset(0, 40),
           ),
-        ));
+        ], // actions
+      ),
+      body: ListView.separated(
+        itemBuilder: (context, index) => taskRow(taskManager.lstTasks[index]),
+        itemCount: taskManager.lstTasks.length,
+        separatorBuilder: (context, index) => const Divider(
+          color: Colors.grey,
+          thickness: 1,
+          height: 1,
+        ),
+      ),
+      floatingActionButton: SizedBox(
+        width: 60,
+        height: 60,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => MySecPage()));
+          },
+          backgroundColor: Colors.grey,
+          shape: CircleBorder(),
+          child: const Icon(Icons.add, size: 60, color: Colors.white),
+        ),
+      ),
+    );
   }
 
   Widget taskRow(Task task) {
     return Padding(
-        padding: EdgeInsets.only(top: 10, bottom: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Checkbox(
-              value: task.isDone,
-              onChanged: (bool? value) {
-                // ~~~~~~~~~~
-              },
+      padding: EdgeInsets.only(top: 10, bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Checkbox(
+            value: task.isDone,
+            onChanged: (bool? value) {
+              // ~~~~~~~~~~
+            },
+          ),
+          Expanded(
+            child: Text(
+              task.taskName,
+              style: TextStyle(
+                  fontSize: 24,
+                  decoration: task.isDone
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none),
             ),
-            Expanded(
-              child: Text(
-                task.taskName,
-                style: TextStyle(
-                    fontSize: 24,
-                    decoration: task.isDone
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                // ~~~~~~~~~~
-              },
-            )
-          ],
-        ));
+          ),
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              // ~~~~~~~~~~
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
