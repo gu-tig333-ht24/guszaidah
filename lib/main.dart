@@ -1,53 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'my_sec_page.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => TaskManager(),
-      child: MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class Task {
   String taskName;
-  bool isDone = false;
+  bool isDone;
 
   Task(this.taskName, this.isDone);
-}
-
-class TaskManager extends ChangeNotifier {
-  List<Task> lstTasks = [];
-
-  // Denna variabel håller koll på vilket filter användaren har valt.
-  String filter = "all";
-
-  void addTask(Task task) {
-    lstTasks.add(task);
-    notifyListeners();
-  }
-
-  void removeTask(Task task) {
-    lstTasks.remove(task);
-    notifyListeners();
-  }
-
-  List<Task> getFilteredTasks() {
-    if (filter == "done") {
-      return lstTasks.where((task) => task.isDone).toList();
-    } else if (filter == "undone") {
-      return lstTasks.where((task) => !task.isDone).toList();
-    }
-    return lstTasks;
-  }
-
-  void setFilter(String newFilter) {
-    filter = newFilter;
-    notifyListeners();
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -69,132 +30,160 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // När du använder context.watch<TaskManager>(), lyssnar widgeten (MyHomePage
-    // i det här fallet) på förändringar i TaskManager. Om någon av metoderna i
-    // TaskManager kallar på notifyListeners(), kommer widgeten att byggas om
-    // (uppdateras) automatiskt. 
+    List<Task> lstTasks = [
+      Task("Write a book", false),
+      Task("Do homework", false),
+      Task("Write a book", true),
+      Task("Watch TV", false),
+      Task("Nap", false),
+      Task("Shop groceries", false),
+      Task("Have fun", false),
+      Task("Meditate", false),
+    ];
 
-    // Vad menas med förädnringar i det här sammanhanget ? Det som menas är att
-    // varje gång vi lägger/tar bort en item från listan så beräknas det som förändring 
-    // eftersom i addTask/RemoveTask metoderna har jag lagt notifyListeners().
-    final taskManager = context.watch<TaskManager>();
-    var filteredTasks = taskManager.getFilteredTasks();
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("TIG333 TODO"),
+          centerTitle: true,
+          backgroundColor: Colors.grey,
+          actions: [
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem<String>(
+                    child: Text("all", style: TextStyle(fontSize: 14)),
+                  ),
+                  const PopupMenuItem<String>(
+                    child: Text("done", style: TextStyle(fontSize: 14)),
+                  ),
+                  const PopupMenuItem<String>(
+                    child: Text("undone", style: TextStyle(fontSize: 14)),
+                  ),
+                ];
+              },
+              onSelected: (String value) {
+                // ~~~~~~~~
+              },
+              padding: EdgeInsets.zero,
+              offset: Offset(0, 40),
+            )
+          ], // actions
+        ),
+        // body: ListView(
+        //   children: lstTasks.map((task) => taskRow(task)).toList(),
+        // ),
+        body: ListView.separated(
+          itemBuilder: (context, index) => taskRow(lstTasks[index]),
+          itemCount: lstTasks.length,
+          separatorBuilder: (context, index) => const Divider(
+            color: Colors.grey,
+            thickness: 1,
+            height: 1,
+          ),
+        ),
+        floatingActionButton: SizedBox(
+          width: 60,
+          height: 60,
+          child: FloatingActionButton(
+            onPressed: () {
+              // ~~~~~~~~~~
+            },
+            backgroundColor: Colors.grey,
+            shape: CircleBorder(),
+            child: const Icon(Icons.add, size: 60, color: Colors.white),
+          ),
+        ));
+  }
 
+  Widget taskRow(Task task) {
+    return Padding(
+        padding: EdgeInsets.only(top: 10, bottom: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Checkbox(
+              value: task.isDone,
+              onChanged: (bool? value) {
+                // ~~~~~~~~~~
+              },
+            ),
+            Expanded(
+              child: Text(
+                task.taskName,
+                style: TextStyle(
+                    fontSize: 24,
+                    decoration: task.isDone
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                // ~~~~~~~~~~
+              },
+            )
+          ],
+        ));
+  }
+}
+
+class MySecPage extends StatelessWidget {
+  const MySecPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("TIG333 TODO"),
         centerTitle: true,
         backgroundColor: Colors.grey,
-        actions: [
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert),
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: "all",
-                  child: Text("all", style: TextStyle(fontSize: 14)),
-                ),
-                const PopupMenuItem<String>(
-                  value: "done",
-                  child: Text("done", style: TextStyle(fontSize: 14)),
-                ),
-                const PopupMenuItem<String>(
-                  value: "undone",
-                  child: Text("undone", style: TextStyle(fontSize: 14)),
-                ),
-              ];
-            },
-            onSelected: (String value) {
-              final taskManager = context.read<TaskManager>();
-              taskManager.setFilter(value);
-            },
-            padding: EdgeInsets.zero,
-            offset: Offset(0, 40),
-          ),
-        ], // actions
-      ),
-      body: ListView.separated(
-        itemBuilder: (context, index) => taskRow(context, filteredTasks[index]),
-        itemCount: filteredTasks.length,
-        separatorBuilder: (context, index) => const Divider(
-          color: Colors.grey,
-          thickness: 1,
-          height: 1,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // Navigator.pop(context);
+          },
         ),
       ),
-      floatingActionButton: SizedBox(
-        width: 60,
-        height: 60,
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => MySecPage()));
-          },
-          backgroundColor: Colors.grey,
-          shape: CircleBorder(),
-          child: const Icon(Icons.add, size: 60, color: Colors.white),
+      body: Padding(
+        padding: EdgeInsets.only(top: 40, right: 30, left: 30, bottom: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: "What are you going to do?",
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextButton.icon(
+              onPressed: () {
+                // ~~~~~~~~
+              },
+              label: Text(
+                "+ ADD",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
-
-Widget taskRow(BuildContext context, Task task) {
-  return Padding(
-    padding: const EdgeInsets.only(top: 10, bottom: 10),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Checkbox(
-          value: task.isDone,
-          onChanged: (bool? value) {
-            if (task.isDone) {
-              task.isDone = false;
-            } else {
-              task.isDone = true;
-            }
-
-            // Jag använder read här eftersom det är en engångsåtgärd när är 
-            // användaren markerar eller avmarkerar Checkbox-en.
-
-            //  I det här fallet vill vi inte att själva taskRow-widgeten ska 
-            // lyssna på förändringar i TaskManager. Det är MyHomePage som redan 
-            // lyssnar på alla förändringar genom att använda watch.
-
-            // Genom att använda read, undviker vi att skapa en onödig lyssnare 
-            // inom varje Checkbox.
-            final taskManager = context.read<TaskManager>();
-            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-            taskManager.notifyListeners();
-          },
-        ),
-        Expanded(
-          child: Text(
-            task.taskName,
-            style: TextStyle(
-                fontSize: 24,
-                decoration: task.isDone
-                    ? TextDecoration.lineThrough
-                    : TextDecoration.none),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            // Vi använder context.read<TaskManager>() för att ta bort en uppgift 
-            // eftersom detta är en engångsåtgärd. Vi behöver bara anropa metoden 
-            // removeTask en gång.
-
-            // Om vi använder context.watch<TaskManager>() i detta sammanhang 
-            // skulle vi skapa en lyssnare i varje taskRow, vilket är onödigt 
-            // eftersom taskRow inte behöver uppdateras självständigt när listan 
-            // i TaskManager ändras. Det är MyHomePage som behöver uppdateras.
-            final taskManager = context.read<TaskManager>();
-            taskManager.removeTask(task);
-          },
-        ),
-      ],
-    ),
-  );
 }
