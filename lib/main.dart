@@ -48,6 +48,15 @@ class TaskManager extends ChangeNotifier {
     filter = newFilter;
     notifyListeners();
   }
+
+  void checkBoxStatus(Task task) {
+    if (task.isDone) {
+      task.isDone = false;
+    } else {
+      task.isDone = true;
+    }
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -72,10 +81,10 @@ class MyHomePage extends StatelessWidget {
     // När du använder context.watch<TaskManager>(), lyssnar widgeten (MyHomePage
     // i det här fallet) på förändringar i TaskManager. Om någon av metoderna i
     // TaskManager kallar på notifyListeners(), kommer widgeten att byggas om
-    // (uppdateras) automatiskt. 
+    // (uppdateras) automatiskt.
 
     // Vad menas med förädnringar i det här sammanhanget ? Det som menas är att
-    // varje gång vi lägger/tar bort en item från listan så beräknas det som förändring 
+    // varje gång vi lägger/tar bort en item från listan så beräknas det som förändring
     // eftersom i addTask/RemoveTask metoderna har jag lagt notifyListeners().
     final taskManager = context.watch<TaskManager>();
     var filteredTasks = taskManager.getFilteredTasks();
@@ -149,24 +158,16 @@ Widget taskRow(BuildContext context, Task task) {
         Checkbox(
           value: task.isDone,
           onChanged: (bool? value) {
-            if (task.isDone) {
-              task.isDone = false;
-            } else {
-              task.isDone = true;
-            }
-
-            // Jag använder read här eftersom det är en engångsåtgärd när är 
+            // Jag använder read här eftersom det är en engångsåtgärd när är
             // användaren markerar eller avmarkerar Checkbox-en.
 
-            //  I det här fallet vill vi inte att själva taskRow-widgeten ska 
-            // lyssna på förändringar i TaskManager. Det är MyHomePage som redan 
+            // I det här fallet vill vi inte att själva taskRow-widgeten ska
+            // lyssna på förändringar i TaskManager. Det är MyHomePage som redan
             // lyssnar på alla förändringar genom att använda watch.
 
-            // Genom att använda read, undviker vi att skapa en onödig lyssnare 
+            // Genom att använda read, undviker vi att skapa en onödig lyssnare
             // inom varje Checkbox.
-            final taskManager = context.read<TaskManager>();
-            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-            taskManager.notifyListeners();
+            context.read<TaskManager>().checkBoxStatus(task);
           },
         ),
         Expanded(
@@ -182,16 +183,18 @@ Widget taskRow(BuildContext context, Task task) {
         IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            // Vi använder context.read<TaskManager>() för att ta bort en uppgift 
-            // eftersom detta är en engångsåtgärd. Vi behöver bara anropa metoden 
-            // removeTask en gång.
+            // Vi använder context.read<TaskManager>() för att ta bort en uppgift
+            // eftersom detta är en engångsåtgärd. Vi behöver bara anropa metoden
+            // removeTask en gång.Om vi använder context.watch<TaskManager>() i
+            // detta sammanhang skulle vi skapa en lyssnare i varje taskRow,
+            // vilket är onödigt eftersom taskRow inte behöver uppdateras
+            // självständigt när listan i TaskManager ändras. Det är MyHomePage
+            // som behöver uppdateras.
+            context.read<TaskManager>().removeTask(task);
 
-            // Om vi använder context.watch<TaskManager>() i detta sammanhang 
-            // skulle vi skapa en lyssnare i varje taskRow, vilket är onödigt 
-            // eftersom taskRow inte behöver uppdateras självständigt när listan 
-            // i TaskManager ändras. Det är MyHomePage som behöver uppdateras.
-            final taskManager = context.read<TaskManager>();
-            taskManager.removeTask(task);
+            // Eller
+            // final taskManager = context.read<TaskManager>();
+            // taskManager.removeTask(task);
           },
         ),
       ],
