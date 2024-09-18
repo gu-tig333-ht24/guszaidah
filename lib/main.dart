@@ -21,6 +21,8 @@ class Task {
 
 class TaskManager extends ChangeNotifier {
   List<Task> lstTasks = [];
+
+  // Denna variabel håller koll på vilket filter användaren har valt.
   String filter = "all";
 
   void addTask(Task task) {
@@ -67,12 +69,14 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Jag använder "watch" här eftersom jag vill att denna vy (HomePage) ska uppdateras
-    // varje gång listan i TaskManager ändras, t.ex. när en ny uppgift läggs till
-    // eller när en uppgift tas bort. Genom att använda "watch" kommer widgeten
-    // automatiskt att lyssna på förändringar i TaskManager och uppdatera sig
-    // när notifyListeners() anropas, vilket gör att användargränssnittet visar
-    // den aktuella listan med uppgifter.
+    // När du använder context.watch<TaskManager>(), lyssnar widgeten (MyHomePage
+    // i det här fallet) på förändringar i TaskManager. Om någon av metoderna i
+    // TaskManager kallar på notifyListeners(), kommer widgeten att byggas om
+    // (uppdateras) automatiskt. 
+
+    // Vad menas med förädnringar i det här sammanhanget ? Det som menas är att
+    // varje gång vi lägger/tar bort en item från listan så beräknas det som förändring 
+    // eftersom i addTask/RemoveTask metoderna har jag lagt notifyListeners().
     final taskManager = context.watch<TaskManager>();
     var filteredTasks = taskManager.getFilteredTasks();
 
@@ -151,7 +155,17 @@ Widget taskRow(BuildContext context, Task task) {
               task.isDone = true;
             }
 
+            // Jag använder read här eftersom det är en engångsåtgärd när är 
+            // användaren markerar eller avmarkerar Checkbox-en.
+
+            //  I det här fallet vill vi inte att själva taskRow-widgeten ska 
+            // lyssna på förändringar i TaskManager. Det är MyHomePage som redan 
+            // lyssnar på alla förändringar genom att använda watch.
+
+            // Genom att använda read, undviker vi att skapa en onödig lyssnare 
+            // inom varje Checkbox.
             final taskManager = context.read<TaskManager>();
+            // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
             taskManager.notifyListeners();
           },
         ),
@@ -168,7 +182,14 @@ Widget taskRow(BuildContext context, Task task) {
         IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            // Här använder vi read eftersom det är en engångsåtgärd
+            // Vi använder context.read<TaskManager>() för att ta bort en uppgift 
+            // eftersom detta är en engångsåtgärd. Vi behöver bara anropa metoden 
+            // removeTask en gång.
+
+            // Om vi använder context.watch<TaskManager>() i detta sammanhang 
+            // skulle vi skapa en lyssnare i varje taskRow, vilket är onödigt 
+            // eftersom taskRow inte behöver uppdateras självständigt när listan 
+            // i TaskManager ändras. Det är MyHomePage som behöver uppdateras.
             final taskManager = context.read<TaskManager>();
             taskManager.removeTask(task);
           },
