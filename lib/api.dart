@@ -13,12 +13,7 @@ class Task {
   String taskName;
   bool isDone = false;
 
-  Task({
-    this.id ="",
-    required this.taskName, 
-    required this.isDone
-    }
-  );
+  Task({this.id = "", required this.taskName, required this.isDone});
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
@@ -37,6 +32,7 @@ class TaskManager extends ChangeNotifier {
     lstTasks.add(task);
     notifyListeners();
 
+    print("Börjar skicka tasks");
     http.Response response = await http.post(
       Uri.parse("$ENDPOINT?key=$MY_API_KEY"),
       headers: {"Content-Type": "application/json"},
@@ -44,21 +40,29 @@ class TaskManager extends ChangeNotifier {
         {"title": task.taskName, "done": task.isDone},
       ),
     );
+    print("Klar med att skicka tasks");
   }
 
   Future<void> getTask() async {
-    http.Response response = await http.get(Uri.parse("$ENDPOINT?key=$MY_API_KEY"));
+    print("Hämtar tasks");
+    http.Response response =
+        await http.get(Uri.parse("$ENDPOINT?key=$MY_API_KEY"));
     String body = response.body;
     List<dynamic> jsonData = jsonDecode(body);
     lstTasks = jsonData.map((json) => Task.fromJson(json)).toList();
     notifyListeners();
+    print("Klar med att hämta tasks");
   }
 
   Future<void> removeTask(Task task) async {
     lstTasks.remove(task);
     notifyListeners();
 
-    http.Response response = await http.delete(Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"));
+    print("Tar bort tasks");
+    // ignore: unused_local_variable
+    http.Response response =
+        await http.delete(Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"));
+    print("Klar med att ta bort tasks");
   }
 
   void checkBoxStatus(Task task) async {
@@ -69,6 +73,7 @@ class TaskManager extends ChangeNotifier {
     }
     notifyListeners();
 
+    print("Uppdaterar tasks");
     http.Response response = await http.put(
       Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"),
       headers: {"Content-Type": "application/json"},
@@ -76,6 +81,7 @@ class TaskManager extends ChangeNotifier {
         {"title": task.taskName, "done": task.isDone},
       ),
     );
+    print("Klar med att uppdatera tasks");
   }
 
   List<Task> getFilteredTasks() {
