@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'main.dart';
+import 'api.dart';
 
 class MySecPage extends StatelessWidget {
   MySecPage({super.key});
@@ -46,19 +46,19 @@ class MySecPage extends StatelessWidget {
             const SizedBox(height: 20),
             TextButton.icon(
               onPressed: () {
-                // När jag använder readså säger jag till Provider att jag 
-                // inte är intresserad av att lyssna på förändringar i TaskManager. 
-                // Det betyder att MySecPage inte kommer att uppdateras om något 
+                // När jag använder readså säger jag till Provider att jag
+                // inte är intresserad av att lyssna på förändringar i TaskManager.
+                // Det betyder att MySecPage inte kommer att uppdateras om något
                 // i TaskManager ändras.
 
-                // jag använder read för att komma åt TaskManager-instansen och 
-                // lägga till en uppgift (addTask). Detta är en engångsåtgärd. 
-                // När jag trycker på "+ ADD"-knappen läggs en ny uppgift till, 
-                // men själva skärmen (MySecPage) behöver inte uppdateras, vilket 
+                // jag använder read för att komma åt TaskManager-instansen och
+                // lägga till en uppgift (addTask). Detta är en engångsåtgärd.
+                // När jag trycker på "+ ADD"-knappen läggs en ny uppgift till,
+                // men själva skärmen (MySecPage) behöver inte uppdateras, vilket
                 // är varför jag använder read.
                 final taskManager = context.read<TaskManager>();
                 String taskName = _taskController.text;
-                taskManager.addTask(Task(taskName, false));
+                taskManager.addTask(Task(taskName: taskName, isDone: false));
                 _taskController.clear();
               },
               label: Text(

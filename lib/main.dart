@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'my_sec_page.dart';
+import 'api.dart';
 
 void main() {
   runApp(
@@ -10,53 +11,6 @@ void main() {
       child: MyApp(),
     ),
   );
-}
-
-class Task {
-  String taskName;
-  bool isDone = false;
-
-  Task(this.taskName, this.isDone);
-}
-
-class TaskManager extends ChangeNotifier {
-  List<Task> lstTasks = [];
-
-  // Denna variabel håller koll på vilket filter användaren har valt.
-  String filter = "all";
-
-  void addTask(Task task) {
-    lstTasks.add(task);
-    notifyListeners();
-  }
-
-  void removeTask(Task task) {
-    lstTasks.remove(task);
-    notifyListeners();
-  }
-
-  List<Task> getFilteredTasks() {
-    if (filter == "done") {
-      return lstTasks.where((task) => task.isDone).toList();
-    } else if (filter == "undone") {
-      return lstTasks.where((task) => !task.isDone).toList();
-    }
-    return lstTasks;
-  }
-
-  void setFilter(String newFilter) {
-    filter = newFilter;
-    notifyListeners();
-  }
-
-  void checkBoxStatus(Task task) {
-    if (task.isDone) {
-      task.isDone = false;
-    } else {
-      task.isDone = true;
-    }
-    notifyListeners();
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -73,8 +27,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TaskManager>().getTask();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +85,8 @@ class MyHomePage extends StatelessWidget {
             padding: EdgeInsets.zero,
             offset: Offset(0, 40),
           ),
-        ], // actions
+        ],
+        // actions
       ),
       body: ListView.separated(
         itemBuilder: (context, index) => taskRow(context, filteredTasks[index]),
