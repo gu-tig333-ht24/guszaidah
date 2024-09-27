@@ -36,6 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
+  
   // initState() är en metod som anropas en gång när widgetens tillstånd (state) 
   // skapas för första gången. I den här appen används den för att göra en 
   // API-förfrågan och hämta uppgifterna från servern
