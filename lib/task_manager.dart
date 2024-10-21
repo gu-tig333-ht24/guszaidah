@@ -58,7 +58,7 @@ class TaskManager extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        var json = jsonDecode(response.body);
+        jsonDecode(response.body);
         lstTasks.add(task);
         notifyListeners();
         print("Klar med att skicka tasks");
