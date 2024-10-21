@@ -53,7 +53,7 @@ class TaskManager extends ChangeNotifier {
         // Här använder vi jsonEncode() för att konvertera en Dart-struktur
         // (i detta fall en Map) till en JSON-sträng.
         body: jsonEncode(
-          {"title": task.taskName, "done": task.isDone},
+          {"id": task.id, "title": task.taskName, "done": task.isDone},
         ),
       );
 
