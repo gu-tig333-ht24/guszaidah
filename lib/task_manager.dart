@@ -53,12 +53,13 @@ class TaskManager extends ChangeNotifier {
         // Här använder vi jsonEncode() för att konvertera en Dart-struktur
         // (i detta fall en Map) till en JSON-sträng.
         body: jsonEncode(
-          {"id": task.id, "title": task.taskName, "done": task.done},
+          {"title": task.taskName, "done": task.done},
         ),
       );
 
       if (response.statusCode == 200) {
-        jsonDecode(response.body);
+        var responseData = jsonDecode(response.body);
+        task.id = responseData["id"].toString();
         lstTasks.add(task);
         notifyListeners();
         print("Klar med att skicka tasks");
@@ -71,7 +72,7 @@ class TaskManager extends ChangeNotifier {
   }
 
   Future<void> removeTask(Task task) async {
-    print("Tar bort tasks");
+    print("Försöker ta bort task med ID: ${task.id}");
     try {
       http.Response response =
           await http.delete(Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"));
