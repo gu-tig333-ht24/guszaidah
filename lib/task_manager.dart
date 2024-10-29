@@ -54,26 +54,19 @@ class TaskManager with ChangeNotifier {
         headers: {"Content-Type": "application/json"},
         // Här använder vi jsonEncode() för att konvertera en Dart-struktur
         // (i detta fall en Map) till en JSON-sträng.
+
+        // Det går inte att inkluderar id i body när man skapar en ny uppgift,
+        // eftersom servern inte förväntar sig ett id. Servern är inställd på
+        // att den själv generera ett unikt id för varje ny uppgift annars
+        // kommer jag få error.
         body: jsonEncode(
           {"title": task.taskName, "done": task.done},
         ),
       );
 
       if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        print("Respos för addTask: $responseData");
-
-        if (responseData is List) {
-          var lastTask = responseData.last;
-          task.id = lastTask["id"].toString();
-        } else if (responseData is Map) {
-          task.id = responseData["id"].toString();
-        } else {
-          print("Error med att lägga till tasken :(");
-          return;
-        }
-        lstTasks.add(task);
-        notifyListeners();
+        print("Tasken skickades till servern korrekt");
+        await getTask();
         print("Klar med att skicka tasks");
       } else {
         print("Misslycakdes med att skicka task: ${response.statusCode}");
