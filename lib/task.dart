@@ -10,8 +10,15 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json["id"]?.toString(),
-      taskName: json["title"] ?? "Uppgift",
-      done: json["done"] ?? false,
+      taskName: json["title"],
+      done: json["done"],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "title": taskName,
+      "done": done,
+    };
   }
 }

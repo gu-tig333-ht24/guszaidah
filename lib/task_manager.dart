@@ -4,7 +4,7 @@ import "dart:convert";
 import 'task.dart';
 import 'api.dart';
 
-class TaskManager extends ChangeNotifier {
+class TaskManager with ChangeNotifier {
   List<Task> lstTasks = [];
   String filter = "all";
 
@@ -61,8 +61,17 @@ class TaskManager extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
-        print("API responsdata för addTask: $responseData");
-        task.id = responseData["id"].toString();
+        print("Respos för addTask: $responseData");
+
+        if (responseData is List) {
+          var lastTask = responseData.last;
+          task.id = lastTask["id"].toString();
+        } else if (responseData is Map) {
+          task.id = responseData["id"].toString();
+        } else {
+          print("Error med att lägga till tasken :(");
+          return;
+        }
         lstTasks.add(task);
         notifyListeners();
         print("Klar med att skicka tasks");
@@ -80,7 +89,7 @@ class TaskManager extends ChangeNotifier {
       http.Response response =
           await http.delete(Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"));
       if (response.statusCode == 200) {
-        lstTasks.removeWhere((t) => t.id == task.id);
+        lstTasks.remove(task);
         notifyListeners();
         print("Tasken togs bort korrekt");
       } else {
