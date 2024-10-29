@@ -55,9 +55,9 @@ class TaskManager with ChangeNotifier {
         // Här använder vi jsonEncode() för att konvertera en Dart-struktur
         // (i detta fall en Map) till en JSON-sträng.
 
-        // Det går inte att inkluderar id i body när man skapar en ny uppgift,
-        // eftersom servern inte förväntar sig ett id. Servern är inställd på
-        // att den själv generera ett unikt id för varje ny uppgift annars
+        // Det går inte att inkluderar id i body när man skapar en ny uppgift,  
+        // eftersom servern inte förväntar sig ett id. Servern är inställd på 
+        // att den själv generera ett unikt id för varje ny uppgift annars 
         // kommer jag få error.
         body: jsonEncode(
           {"title": task.taskName, "done": task.done},
@@ -65,14 +65,43 @@ class TaskManager with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        print("Tasken skickades till servern korrekt");
-        await getTask();
+        // Här retunerar vi tasken som vi har pricis skickat till servern för att
+        // tilldela taskens id den iden som den fick av servern. Sedan lägger vi
+        // tasken i listan lstTasks.
+        var responseData = jsonDecode(response.body);
+        print("Respons för addTask: $responseData");
+
+        /*
+         * Appen förväntade sig att servern skulle returnera det sista tasken 
+         * som ett enskilt JSON-objekt men servern returnerade i stället en lista 
+         * av de ny och gamla uppgifter. Appen försökte läsa id direkt från 
+         * responseData, vilket skapade problem när responseData visade sig vara 
+         * en lista istället för ett enskilt objekt. Genom att kontrollera om 
+         * responseData är en lista eller ett objekt kunde vi hämta id på rätt 
+         * sätt från serverns svar och på såsätt undvika typfelet.
+         */
+        if (responseData is List) {
+          // Om responseData är en lista, tar vi den sista uppgiften i listan
+          // (alltså den nyss tillagda) och hämtar dess id.
+          var lastTask = responseData.last;
+          task.id = lastTask["id"].toString();
+        } else if (responseData is Map) {
+          // Om responseData är ett enskilt objekt, hämtar vi "id" direkt från det.
+          task.id = responseData["id"].toString();
+        } else {
+          // Om responseData är varken en lista eller ett objekt, då error.
+          print("Error med att lägga till tasken :(");
+          return;
+        }
+
+        lstTasks.add(task);
+        notifyListeners();
         print("Klar med att skicka tasks");
       } else {
-        print("Misslycakdes med att skicka task: ${response.statusCode}");
+        print("Misslyckades med att skicka task: ${response.statusCode}");
       }
     } catch (e) {
-      print("Ett fel uppstpd vid tillägg av tasks: $e");
+      print("Ett fel uppstod vid tillägg av tasks: $e");
     }
   }
 
