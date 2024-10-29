@@ -129,7 +129,7 @@ Widget taskRow(BuildContext context, Task task) {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Checkbox(
-          value: task.isDone,
+          value: task.done,
           onChanged: (bool? value) {
             // Jag använder read här eftersom det är en engångsåtgärd när är
             // användaren markerar eller avmarkerar Checkbox-en.
@@ -148,7 +148,7 @@ Widget taskRow(BuildContext context, Task task) {
             task.taskName,
             style: TextStyle(
                 fontSize: 24,
-                decoration: task.isDone
+                decoration: task.done
                     ? TextDecoration.lineThrough
                     : TextDecoration.none),
           ),

@@ -59,7 +59,7 @@ class MySecPage extends StatelessWidget {
                 // är varför jag använder read.
                 final taskManager = context.read<TaskManager>();
                 String taskName = _taskController.text;
-                taskManager.addTask(Task(taskName: taskName, isDone: false));
+                taskManager.addTask(Task(taskName: taskName, done: false));
                 _taskController.clear();
               },
               label: Text(

@@ -1,9 +1,9 @@
 class Task {
-  String id;
+  String? id;
   String taskName;
-  bool isDone = false;
+  bool done = false;
 
-  Task({this.id = "", required this.taskName, required this.isDone});
+  Task({this.id, required this.taskName, required this.done});
 
   // Detta är en konstraktur som har ett namn som retunerar en Task objekt.
   // Map<String, dynamic> json är datan som vi får från getTask() metoden.
@@ -11,7 +11,7 @@ class Task {
     return Task(
       id: json["id"],
       taskName: json["title"],
-      isDone: json["done"],
+      done: json["done"],
     );
   }
 }

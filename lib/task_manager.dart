@@ -53,7 +53,7 @@ class TaskManager extends ChangeNotifier {
         // Här använder vi jsonEncode() för att konvertera en Dart-struktur
         // (i detta fall en Map) till en JSON-sträng.
         body: jsonEncode(
-          {"id": task.id, "title": task.taskName, "done": task.isDone},
+          {"id": task.id, "title": task.taskName, "done": task.done},
         ),
       );
 
@@ -88,7 +88,7 @@ class TaskManager extends ChangeNotifier {
   }
 
   void checkBoxStatus(Task task) async {
-    task.isDone = !task.isDone;
+    task.done = !task.done;
     print("Uppdaterar tasks");
 
     try {
@@ -96,7 +96,7 @@ class TaskManager extends ChangeNotifier {
         Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(
-          {"title": task.taskName, "done": task.isDone},
+          {"title": task.taskName, "done": task.done},
         ),
       );
 
@@ -104,20 +104,20 @@ class TaskManager extends ChangeNotifier {
         notifyListeners();
         print("Klar med att uppdatera tasks");
       } else {
-        task.isDone = !task.isDone;
+        task.done = !task.done;
         print("Misslyckades med att uppdatera tasks: ${response.statusCode}");
       }
     } catch (e) {
-      task.isDone = !task.isDone;
+      task.done = !task.done;
       print("Ett fel uppstod vid uppdatering av tasks: $e");
     }
   }
 
   List<Task> getFilteredTasks() {
     if (filter == "done") {
-      return lstTasks.where((task) => task.isDone).toList();
+      return lstTasks.where((task) => task.done).toList();
     } else if (filter == "undone") {
-      return lstTasks.where((task) => !task.isDone).toList();
+      return lstTasks.where((task) => !task.done).toList();
     }
     return lstTasks;
   }
