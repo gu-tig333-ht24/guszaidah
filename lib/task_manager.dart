@@ -76,9 +76,9 @@ class TaskManager extends ChangeNotifier {
       http.Response response =
           await http.delete(Uri.parse("$ENDPOINT/${task.id}?key=$MY_API_KEY"));
       if (response.statusCode == 200) {
-        lstTasks.remove(task);
+        lstTasks.removeWhere((t) => t.id == task.id);
         notifyListeners();
-        print("Klar med att ta bort tasks");
+        print("Tasken togs bort korrekt");
       } else {
         print("Misslyckades med att ta bort tasks: ${response.statusCode}");
       }
