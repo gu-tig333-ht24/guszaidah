@@ -9,9 +9,9 @@ class Task {
   // Map<String, dynamic> json är datan som vi får från getTask() metoden.
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      id: json["id"],
-      taskName: json["title"],
-      done: json["done"],
+      id: json["id"]?.toString(),
+      taskName: json["title"] ?? "Uppgift",
+      done: json["done"] ?? false,
     );
   }
 }

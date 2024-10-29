@@ -13,6 +13,8 @@ class TaskManager extends ChangeNotifier {
     try {
       http.Response response =
           await http.get(Uri.parse("$ENDPOINT?key=$MY_API_KEY"));
+
+      print("API-responsen: ${response.body}");
       if (response.statusCode == 200) {
         String body = response.body;
         // Här konverteras den JSON-strängen till en faktisk Dart-datstruktur.
@@ -59,6 +61,7 @@ class TaskManager extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
+        print("API responsdata för addTask: $responseData");
         task.id = responseData["id"].toString();
         lstTasks.add(task);
         notifyListeners();
